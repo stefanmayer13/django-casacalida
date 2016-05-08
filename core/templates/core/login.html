@@ -9,7 +9,7 @@
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <form action="{% url 'login' %}" method="post">
+    <form action="{% url 'core:login' %}" method="post">
         {% csrf_token %}
         <label for="login_user">Username</label>
         <input type="text" name="username" id="login_user" />

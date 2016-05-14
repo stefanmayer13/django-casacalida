@@ -1,0 +1,19 @@
+{
+  "name": "django-casacalida-styles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-help": "^1.6.1",
+    "require-dot-file": "^0.4.0"
+  },
+  "dependencies": {
+    "semantic-ui": "^2.1.8"
+  }
+}

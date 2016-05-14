@@ -24,8 +24,8 @@
                 <i class="search link icon"></i>
               </div>
             </div>
-            {% if user %}
-                {{ user }} <a href="{% url 'core:logout' %}" class="ui item">Logout</a>
+            {% if user and not user.is_anonymous %}
+                <a href="{% url 'core:logout' %}" class="ui basic button">Logout {{ user }}</a>
             {% else %}
                 <a href="{% url 'core:login' %}" class="ui basic button"><i class="user icon"></i>Log in</a>
             {% endif %}

@@ -5,7 +5,9 @@
     <title>Casa-Calida</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'core/styles/semantic.min.css' %}">
-    <script src="{% static 'core/styles/semantic.min.js' %}"></script>
+    <script defer src="{% static 'core/js/jquery-2.2.3.min.js' %}"></script>
+    <script defer src="{% static 'core/styles/semantic.min.js' %}"></script>
+    <script defer src="{% static 'core/js/main.js' %}"></script>
 </head>
 <body>
     <div class="ui container">
@@ -25,9 +27,21 @@
               </div>
             </div>
             {% if user and not user.is_anonymous %}
-                <a href="{% url 'core:logout' %}" class="ui basic button">Logout {{ user }}</a>
+                <div class="ui basic button"><a href="{% url 'core:logout' %}">Logout {{ user }}</a></div>
             {% else %}
-                <a href="{% url 'core:login' %}" class="ui basic button"><i class="user icon"></i>Log in</a>
+                <div id="menu_login" class="ui basic button"><a href="{% url 'core:login' %}"><i class="user icon"></i>Log in</a></div>
+                <div class="ui flowing popup bottom right transition hidden">
+                    <form class="ui form" action="{% url 'core:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="field">
+                            <input type="text" name="username" placeholder="Username">
+                        </div>
+                        <div class="field">
+                            <input type="password" name="password" placeholder="Password">
+                        </div>
+                        <button class="ui button" type="submit">Log in</button>
+                    </form>
+                </div>
             {% endif %}
           </div>
         </div>

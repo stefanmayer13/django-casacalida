@@ -1,5 +1,8 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_head.html' %}
+
+{% load staticfiles %}
 
 {% block content %}
-    <h1>Hello World!</h1>
+    <h1>Welcome to Casa-Calida</h1>
+    <img class="ui centered image" src="{% static 'core/images/hero.jpg' %}">
 {% endblock %}

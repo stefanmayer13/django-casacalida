@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block header %}
+    {% load core_links %}
+    <div class="ui secondary menu">
+      <a href="{% url 'core:index' %}" class="item {% active_link 'core:index' %}">
+        <i class="home icon"></i>Home
+      </a>
+      <a href="{% url 'core:login' %}" class="item {% active_link 'core:login' %}">
+        <i class="user icon"></i>Login
+      </a>
+      {% block additionalheader %}
+      {% endblock %}
+    </div>
+{% endblock %}

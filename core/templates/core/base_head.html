@@ -1,0 +1,23 @@
+{% extends 'core/base_head_nologin.html' %}
+
+{% block additionalheader %}
+    <div class="right menu">
+        {% if user and not user.is_anonymous %}
+            <div class="ui basic button"><a href="{% url 'core:logout' %}">Logout {{ user }}</a></div>
+        {% else %}
+            <div id="menu_login" class="ui basic button"><a href="{% url 'core:login' %}"><i class="user icon"></i>Log in</a></div>
+            <div class="ui flowing popup bottom right transition hidden">
+                <form class="ui form" action="{% url 'core:login' %}" method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <input type="text" name="username" placeholder="Username">
+                    </div>
+                    <div class="field">
+                        <input type="password" name="password" placeholder="Password">
+                    </div>
+                    <button class="ui button" type="submit">Log in</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

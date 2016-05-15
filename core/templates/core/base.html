@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Casa-Calida</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'core/styles/semantic.min.css' %}">
@@ -11,40 +12,9 @@
 </head>
 <body>
     <div class="ui container">
-        {% load core_links %}
-        <div class="ui secondary menu">
-          <a href="{% url 'core:index' %}" class="item {% active_link 'core:index' %}">
-            Home
-          </a>
-          <a href="{% url 'core:login' %}" class="item {% active_link 'core:login' %}">
-            Login
-          </a>
-          <div class="right menu">
-            <div class="item">
-              <div class="ui icon input">
-                <input type="text" placeholder="Search...">
-                <i class="search link icon"></i>
-              </div>
-            </div>
-            {% if user and not user.is_anonymous %}
-                <div class="ui basic button"><a href="{% url 'core:logout' %}">Logout {{ user }}</a></div>
-            {% else %}
-                <div id="menu_login" class="ui basic button"><a href="{% url 'core:login' %}"><i class="user icon"></i>Log in</a></div>
-                <div class="ui flowing popup bottom right transition hidden">
-                    <form class="ui form" action="{% url 'core:login' %}" method="post">
-                        {% csrf_token %}
-                        <div class="field">
-                            <input type="text" name="username" placeholder="Username">
-                        </div>
-                        <div class="field">
-                            <input type="password" name="password" placeholder="Password">
-                        </div>
-                        <button class="ui button" type="submit">Log in</button>
-                    </form>
-                </div>
-            {% endif %}
-          </div>
-        </div>
+        {% block header %}
+        {% endblock %}
+
         {% block content %}
         {% endblock %}
     </div>

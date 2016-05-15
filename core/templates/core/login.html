@@ -1,12 +1,13 @@
-{% extends 'core/base.html' %}
+{% extends 'core/base_head_nologin.html' %}
 
 {% block content %}
     <h1>Login</h1>
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <form action="{% url 'core:login' %}" method="post">
+    <form action="{% url 'core:login' %}?next={{next}}" method="post">
         {% csrf_token %}
+        <input type="hidden"name="next" value="{{next}}"/>
         <label for="login_user">Username</label>
         <input type="text" name="username" id="login_user" />
         <br/>

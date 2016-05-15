@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     user = None
@@ -13,7 +14,9 @@ def index(request):
 
 def login(request):
     if request.method == 'GET':
-        return render(request, 'core/login.html')
+        return render(request, 'core/login.html', {
+            'next': request.GET['next']
+        })
     elif request.method == 'POST':
         errorMessage = None
         username = request.POST['username']
@@ -25,15 +28,21 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     auth_login(request, user)
-                    return HttpResponseRedirect(reverse('core:index'))
+                    next = request.POST['next'] if True else reverse('core:index')
+                    return HttpResponseRedirect(next)
                 else:
                     errorMessage = "This user account ist not active."
             else:
                 errorMessage = "Username or password wrong."
         return render(request, 'core/login.html', {
             'error_message': errorMessage,
+            'next': request.GET['next'],
         })
 
 def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('core:index'))
+
+@login_required
+def dashboard(request):
+    return render(request, 'core/dashboard.html')

@@ -15,7 +15,7 @@ def index(request):
 def login(request):
     if request.method == 'GET':
         return render(request, 'core/login.html', {
-            'next': request.GET['next']
+            'next': request.GET.get('next', '')
         })
     elif request.method == 'POST':
         errorMessage = None
@@ -28,15 +28,16 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     auth_login(request, user)
-                    next = request.POST['next'] if True else reverse('core:index')
-                    return HttpResponseRedirect(next)
+                    next = request.POST['next']
+                    redirect = next if next else reverse('core:index')
+                    return HttpResponseRedirect(redirect)
                 else:
                     errorMessage = "This user account ist not active."
             else:
                 errorMessage = "Username or password wrong."
         return render(request, 'core/login.html', {
             'error_message': errorMessage,
-            'next': request.GET['next'],
+            'next': request.GET.get('next', ''),
         })
 
 def logout(request):

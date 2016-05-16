@@ -3,13 +3,15 @@
 {% block header %}
     {% load core_links %}
     <div class="ui secondary menu">
-      <a href="{% url 'core:index' %}" class="item {% active_link 'core:index' %}">
-        <i class="home icon"></i>Home
-      </a>
-      <a href="{% url 'core:login' %}" class="item {% active_link 'core:login' %}">
-        <i class="user icon"></i>Login
-      </a>
-      {% block additionalheader %}
-      {% endblock %}
+        <a href="{% url 'core:index' %}" class="item {% active_link 'core:index' %}">
+            <i class="home icon"></i>Home
+        </a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'core:dashboard' %}" class="item {% active_link 'core:dashboard' %}">
+                <i class="block layout icon"></i>Dashboard
+            </a>
+        {% endif %}
+        {% block additionalheader %}
+        {% endblock %}
     </div>
 {% endblock %}

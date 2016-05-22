@@ -4,5 +4,15 @@
 
 {% block content %}
     <h1>Dashboard</h1>
-    Test
+    <section>
+        {% if devices %}
+            <ul>
+            {% for device in devices %}
+                <li><a href="/api/devices/{{ device.id }}/">{{ device.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No devices available.</p>
+        {% endif %}
+    </section>
 {% endblock %}

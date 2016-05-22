@@ -1,13 +1,12 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
+from django.http import JsonResponse
 from core.models import Device
-from core.serializers import DeviceSerializer
+from core.serializers import serializeDevice
+import json
 
 def index(request):
     user = None
@@ -55,57 +54,21 @@ def logout(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'core/dashboard.html')
+    devices = Device.objects.all()
+    return render(request, 'core/dashboard.html', {
+        'devices': devices
+    })
 
-class JSONResponse(HttpResponse):
-    """
-    An HttpResponse that renders its content into JSON.
-    """
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(content, **kwargs)
-
-@csrf_exempt
+@login_required
 def device_list(request):
-    """
-    List all code snippets, or create a new snippet.
-    """
-    if request.method == 'GET':
-        snippets = Device.objects.all()
-        serializer = DeviceSerializer(snippets, many=True)
-        return JSONResponse(serializer.data)
+    return JsonResponse(dict(devices=list(Device.objects.values('id', 'name'))))
 
+@login_required
+def device_detail(request, id):
+    if request.method == 'GET':
+        device = get_object_or_404(Device, id=id)
+        return JsonResponse(serializeDevice(device))
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = DeviceSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        return JSONResponse(serializer.errors, status=400)
-
-@csrf_exempt
-def device_detail(request, pk):
-    """
-    Retrieve, update or delete a code snippet.
-    """
-    try:
-        device = Device.objects.get(pk=pk)
-    except Device.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = DeviceSerializer(device)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = DeviceSerializer(device, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        device.delete()
-        return HttpResponse(status=204)
+        deviceId = request.POST['deviceId']
+        sensors = request.POST['sensors']
+        return 'TODO'

@@ -59,9 +59,11 @@ def dashboard(request):
         'devices': devices
     })
 
-@login_required
 def device_list(request):
-    return JsonResponse(dict(devices=list(Device.objects.values('id', 'name'))))
+    if request.user.is_authenticated():
+        return JsonResponse(dict(devices=list(Device.objects.values('id', 'name'))))
+    else:
+        return HttpResponse(status=401)
 
 @login_required
 def device_detail(request, id):

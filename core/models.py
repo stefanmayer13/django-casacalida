@@ -4,8 +4,7 @@ from django.conf import settings
 class ApiUser(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        blank=True
+        on_delete=models.CASCADE
     )
     token = models.CharField(max_length=40, blank=False)
 
@@ -13,10 +12,7 @@ class ApiUser(models.Model):
         return self.token
 
 class Device(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     deviceId = models.PositiveIntegerField()

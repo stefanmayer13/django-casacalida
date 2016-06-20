@@ -12,5 +12,5 @@ urlpatterns = [
     url(r'^api/v1/fullupdate/$', views.api_full_update),
     url(r'^api/v1/incrementalupdate/$', views.api_incremental_update),
     url(r'^api/devices/$', views.device_list),
-    url(r'^api/devices/(?P<id>[0-9]+)/$', views.device_detail)
+    url(r'^api/devices/(?P<deviceid>[0-9]+)/$', views.device_detail)
 ]

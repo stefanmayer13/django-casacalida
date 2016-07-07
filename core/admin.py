@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue
+from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue
 
 def sensor_name(obj):
     return obj.sensor.__str__()
@@ -13,6 +13,7 @@ class SensorValueAdmin(admin.ModelAdmin):
     ordering = ('-updated',)
 
 # Register your models here.
+admin.site.register(Controller)
 admin.site.register(Device)
 admin.site.register(ApiUser)
 admin.site.register(DeviceBattery)

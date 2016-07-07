@@ -13,11 +13,25 @@ class ApiUser(models.Model):
         return self.token
 
 
-class Device(models.Model):
+class Controller(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    deviceId = models.PositiveIntegerField()
+    name = models.CharField(max_length=255, blank=True, default='')
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name_plural = 'controllers'
+
+    def __str__(self):
+        return self.name
+
+
+class Device(models.Model):
+    controller = models.ForeignKey(Controller, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    deviceId = models.CharField(max_length=255, blank=True, default='')
     name = models.CharField(max_length=255, blank=True, default='')
     xml = models.TextField(blank=True, default='')
     deviceType = models.CharField(max_length=255, blank=True, default='')
@@ -60,7 +74,7 @@ class DeviceDescription(models.Model):
 
 class Sensor(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    sensorId = models.PositiveIntegerField()
+    sensorId = models.CharField(max_length=255, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     commandClass = models.CharField(max_length=25, blank=True, default='')

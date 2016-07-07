@@ -157,6 +157,9 @@ def api_full_update(request):
                                                                commandClass=sensor.get('commandClass'))
                             device_sensor.type = sensor.get('type', '')
                             device_sensor.name = sensor.get('name', '')
+                            device_sensor.title = sensor.get('title', '')
+                            device_sensor.icon = sensor.get('icon', '')
+                            device_sensor.tags = sensor.get('tags', '')
                             device_sensor.scale = sensor.get('scale', '')
                             device_sensor.valueType = sensor.get('valueType', '')
                             device_sensor.save()
@@ -165,6 +168,9 @@ def api_full_update(request):
                                                                   commandClass=sensor.get('commandClass', ''),
                                                                   type=sensor.get('type', ''),
                                                                   name=sensor.get('name', ''),
+                                                                  title=sensor.get('title', ''),
+                                                                  icon=sensor.get('icon', ''),
+                                                                  tags=sensor.get('tags', ''),
                                                                   scale=sensor.get('scale', ''),
                                                                   valueType=sensor.get('valueType', ''))
 

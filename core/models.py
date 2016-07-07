@@ -80,6 +80,9 @@ class Sensor(models.Model):
     commandClass = models.CharField(max_length=25, blank=True, default='')
     type = models.CharField(max_length=255, blank=True, default='')
     name = models.CharField(max_length=255, blank=True, default='')
+    title = models.CharField(max_length=255, blank=True, default='')
+    icon = models.CharField(max_length=255, blank=True, default='')
+    tags = models.CharField(max_length=255, blank=True, default='')
     scale = models.CharField(max_length=100, blank=True, default='')
     valueType = models.CharField(max_length=100, blank=True, default='')
 

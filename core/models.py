@@ -91,7 +91,7 @@ class Sensor(models.Model):
         verbose_name_plural = 'sensors'
 
     def __str__(self):
-        return self.name + ' ' + self.device.__str__()
+        return self.title
 
 
 class SensorValue(models.Model):

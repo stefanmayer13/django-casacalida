@@ -59,9 +59,35 @@ def logout(request):
 
 @login_required
 def dashboard(request):
-    devices = Device.objects.all()
+    controllers = Controller.objects.filter(owner=request.user)
+    devices = Device.objects.filter(controller__in=controllers)
+    sensors = Sensor.objects.filter(device__in=devices)
+    sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
+    viewdata = {'controllers': []}
+    for controller in controllers:
+        devicesDict = []
+        controllerDevices = devices.filter(controller=controller)
+        for device in controllerDevices:
+            sensorsDict = []
+            deviceSensors = sensors.filter(device=device)
+            for sensor in deviceSensors:
+                sensorValue = sensorvalues.filter(sensor=sensor)[0]
+                sensorsDict.append({
+                    'name': sensor.title,
+                    'value': sensorValue.value + ' ' + sensor.scale,
+                })
+            devicesDict.append({
+                'name': device.name,
+                'sensors': sensorsDict,
+            })
+        viewdata['controllers'].append({
+            'name': controller.name,
+            'devices': devicesDict
+        })
     return render(request, 'core/dashboard.html', {
-        'devices': devices
+        'viewdata': viewdata,
+        'devices': devices,
+        'sensors': sensors,
     })
 
 # ################################################-API-##############################################################

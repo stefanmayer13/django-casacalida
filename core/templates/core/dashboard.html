@@ -5,14 +5,26 @@
 {% block content %}
     <h1>Dashboard</h1>
     <section>
-        {% if devices %}
+        {% if viewdata %}
             <ul>
-            {% for device in devices %}
-                <li><a href="/api/devices/{{ device.id }}/">{{ device.name }}</a></li>
+            {% for controller in viewdata.controllers %}
+                <li>{{ controller.name }}
+                    <ul>
+                    {% for device in controller.devices %}
+                        <li>{{ device.name }}
+                            <ul>
+                            {% for sensor in device.sensors %}
+                                <li>{{ sensor.name }}<br />{{ sensor.value }}</li>
+                            {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>No devices available.</p>
+            <p>No controllers available.</p>
         {% endif %}
     </section>
 {% endblock %}

@@ -1,0 +1,9 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    volumes:
+    - /opt/casacalida/postgresql:/var/lib/postgresql
+  web:
+    ports:
+      - "8000:8000"

@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import datetime
 import pytz
+import time
 
 def index(request):
     user = None
@@ -121,6 +122,10 @@ def api_check(request):
             pass
     return HttpResponse(status=401, content='Authentication failed')
 
+@csrf_exempt
+def get_time(request):
+    response_data = {'time': int(time.time())}
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @csrf_exempt
 def api_full_update(request):

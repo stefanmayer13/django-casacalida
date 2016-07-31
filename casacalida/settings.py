@@ -23,7 +23,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ybsl&xeyw8iqdst^w0_ii&25zp=-s^=!gshh=a06slsye)5e+a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_BROWSER_XSS_FILTER = True
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_HTTPONLY = True
+
+X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = []
 
@@ -79,7 +91,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres',
-        'USER': 'postgres',
+        'USER': os.environ.get("CASACALIDA_DB_USER", ''),
+        'PASSWORD': os.environ.get("CASACALIDA_DB_PASSWORD", ''),
         'HOST': 'db',
         'PORT': 5432,
     }
@@ -123,5 +136,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 LOGIN_URL = '/login/'
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'casa-calida.com/', '*']

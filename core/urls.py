@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^login/$', views.login, name='login'),
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
+    url(r'^skipdaily/$', views.skipdaily),
     url(r'^api/v1/time/$', views.get_time),
     url(r'^api/v1/check/$', views.api_check),
     url(r'^api/v1/fullupdate/$', views.api_full_update),

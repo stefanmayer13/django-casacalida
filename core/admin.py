@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue
+from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, JobData
 
 def sensor_name(obj):
     return obj.sensor.__str__()
@@ -36,3 +36,4 @@ admin.site.register(DeviceBattery)
 admin.site.register(DeviceDescription)
 admin.site.register(Sensor)
 admin.site.register(SensorValue, SensorValueAdmin)
+admin.site.register(JobData)

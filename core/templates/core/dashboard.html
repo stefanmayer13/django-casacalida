@@ -5,6 +5,14 @@
 {% block content %}
     <h1>Dashboard</h1>
     <section>
+        <a href="/skipdaily">Skip Daily Schedule</a>
+        {% if jobs %}
+            <ul>
+                {% for job in jobs %}
+                    <li>{{ job.device }}: {{ job.type }}={{ job.value }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         {% if viewdata %}
             <ul>
             {% for controller in viewdata.controllers %}

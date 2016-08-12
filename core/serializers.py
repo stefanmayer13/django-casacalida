@@ -9,3 +9,10 @@ def serializeDevice(device):
         'product': device.product,
         'image': device.image
     }
+
+def serializeJob(job):
+    return {
+        'device': job.device,
+        'type': job.type,
+        'value': job.value
+    }

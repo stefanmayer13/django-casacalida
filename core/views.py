@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue
-from core.serializers import serializeDevice
+from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, JobData
+from core.serializers import serializeDevice, serializeJob
 from django.views.decorators.csrf import csrf_exempt
 import json
 import datetime
@@ -60,6 +60,7 @@ def logout(request):
 
 @login_required
 def dashboard(request):
+    jobs = JobData.objects.filter(owner=request.user, done=False)
     controllers = Controller.objects.filter(owner=request.user)
     devices = Device.objects.filter(controller__in=controllers)
     sensors = Sensor.objects.filter(device__in=devices)
@@ -89,6 +90,7 @@ def dashboard(request):
         'viewdata': viewdata,
         'devices': devices,
         'sensors': sensors,
+        'jobs': jobs
     })
 
 # ################################################-API-##############################################################
@@ -221,6 +223,7 @@ def api_incremental_update(request):
         try:
             user = ApiUser.objects.get(token=token)
             controllers = json.loads(request.body.decode('utf-8'))
+            sendJobs = False
             for controller in controllers:
                 try:
                     controller_model = Controller.objects.get(owner=user.user, name=controller['name'])
@@ -232,9 +235,28 @@ def api_incremental_update(request):
                                                    updated=datetime.datetime.fromtimestamp(
                                                        sensor['sensor']['lastUpdate'],
                                                        tz=pytz.UTC))
+
+                    if controller['name'] == 'iot':
+                        sendJobs = True
                 except Controller.DoesNotExist:
                     print('Problem with incremental update')
-            return HttpResponse(status=200)
+
+            if sendJobs:
+                jobs = JobData.objects.filter(owner=user.user, done=False)
+                jobsJson = []
+                for job in jobs:
+                    job.done = True
+                    job.save()
+                    jobsJson.append(serializeJob(job))
+                return JsonResponse(dict(jobs=jobsJson))
+            else:
+                return HttpResponse(status=200)
         except ApiUser.DoesNotExist:
             pass
     return HttpResponse(status=401, content='Authentication failed')
+
+@login_required
+def skipdaily(request):
+    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='skipdaily',
+                           value='1')
+    return HttpResponseRedirect(reverse('core:dashboard'))

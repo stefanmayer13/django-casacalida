@@ -5,7 +5,11 @@
 {% block content %}
     <h1>Dashboard</h1>
     <section>
-        <a href="/skipdaily">Skip Daily Schedule</a>
+        <a href="/enabledaily">Enable Daily Schedule</a><br/><br/>
+        <a href="/skipdaily">Skip Daily Schedule</a><br/><br/>
+        <a href="/settime">Set 02:00AM Sprinkler Time</a><br/><br/><br/>
+        <a href="/seton">Set Sprinkler On</a><br/><br/>
+        <a href="/setoff">Set Sprinkler Off</a>
         {% if jobs %}
             <ul>
                 {% for job in jobs %}

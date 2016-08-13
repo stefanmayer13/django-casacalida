@@ -256,7 +256,31 @@ def api_incremental_update(request):
     return HttpResponse(status=401, content='Authentication failed')
 
 @login_required
+def enabledaily(request):
+    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='skipdaily',
+                           value='0')
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+@login_required
 def skipdaily(request):
     JobData.objects.create(owner=request.user, device='iot-sprinkler', type='skipdaily',
                            value='1')
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+@login_required
+def settime(request):
+    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='time',
+                           value='02%3A00')
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+@login_required
+def seton(request):
+    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='WATER',
+                           value='1')
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+@login_required
+def setoff(request):
+    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='WATER',
+                           value='0')
     return HttpResponseRedirect(reverse('core:dashboard'))

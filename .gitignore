@@ -5,4 +5,4 @@ core/static/core/styles
 static
 
 # Documentation
-/docs/_build
+/doc/_build

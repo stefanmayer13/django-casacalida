@@ -3,3 +3,6 @@ __pycache__
 node_modules
 core/static/core/styles
 static
+
+# Documentation
+/docs/_build

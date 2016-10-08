@@ -102,3 +102,13 @@ class SensorValue(models.Model):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = 'sensorvalues'
+
+
+class JobData(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    device = models.CharField(max_length=255, blank=False)
+    type = models.CharField(max_length=255, blank=False)
+    value = models.CharField(max_length=255, blank=True, default='')
+    done = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

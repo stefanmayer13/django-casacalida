@@ -23,15 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ybsl&xeyw8iqdst^w0_ii&25zp=-s^=!gshh=a06slsye)5e+a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False # Change on dev
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SECURE_BROWSER_XSS_FILTER = True
 
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True  # Change on dev
 
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True  # Change on dev
 
 CSRF_COOKIE_HTTPONLY = True
 

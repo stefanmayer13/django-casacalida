@@ -23,15 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ybsl&xeyw8iqdst^w0_ii&25zp=-s^=!gshh=a06slsye)5e+a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False # Change on dev
+DEBUG = True # Change on dev
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SECURE_BROWSER_XSS_FILTER = True
 
-SESSION_COOKIE_SECURE = True  # Change on dev
+SESSION_COOKIE_SECURE = False  # Change on dev
 
-CSRF_COOKIE_SECURE = True  # Change on dev
+CSRF_COOKIE_SECURE = False  # Change on dev
 
 CSRF_COOKIE_HTTPONLY = True
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -90,7 +91,7 @@ WSGI_APPLICATION = 'casacalida.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
+        'NAME': 'postgres2',
         'USER': os.environ.get("CASACALIDA_DB_USER", ''),
         'PASSWORD': os.environ.get("CASACALIDA_DB_PASSWORD", ''),
         'HOST': 'db',

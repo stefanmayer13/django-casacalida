@@ -142,3 +142,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 LOGIN_URL = '/login/'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'casa-calida.com/', '*']
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+        "ROUTING": "core.routing.channel_routing",
+    },
+}

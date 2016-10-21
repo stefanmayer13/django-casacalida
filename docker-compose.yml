@@ -4,6 +4,8 @@ services:
     environment:
       - POSTGRES_PASSWORD=123
     image: postgres
+  redis:
+    image: redis
   web:
     environment:
       - CASACALIDA_DB_USER=postgres

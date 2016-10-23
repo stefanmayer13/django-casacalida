@@ -73,7 +73,6 @@ def login(request):
         response['csrf_token'] = csrf.get_token()
         return response
 
-
 def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('core:index'))

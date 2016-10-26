@@ -10,11 +10,11 @@ class ApiUser(models.Model):
     token = models.CharField(max_length=40, blank=False)
 
     def __str__(self):
-        return self.token
+        return self.user.__str__()
 
 
 class Controller(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    apiUser = models.ForeignKey(ApiUser, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=255, blank=True, default='')
@@ -58,6 +58,7 @@ class DeviceBattery(models.Model):
 
     def __str__(self):
         return str(self.value) + '%' + ' ' + self.device.__str__()
+
 
 class DeviceDescription(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
@@ -104,10 +105,41 @@ class SensorValue(models.Model):
         verbose_name_plural = 'sensorvalues'
 
 
+class Actuator(models.Model):
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    actuatorId = models.CharField(max_length=255, blank=True, default='')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    commandClass = models.CharField(max_length=25, blank=True, default='')
+    type = models.CharField(max_length=255, blank=True, default='')
+    name = models.CharField(max_length=255, blank=True, default='')
+    title = models.CharField(max_length=255, blank=True, default='')
+    icon = models.CharField(max_length=255, blank=True, default='')
+    tags = models.CharField(max_length=255, blank=True, default='')
+    scale = models.CharField(max_length=100, blank=True, default='')
+    valueType = models.CharField(max_length=100, blank=True, default='')
+
+    class Meta:
+        ordering = ('actuatorId',)
+        verbose_name_plural = 'actuators'
+
+    def __str__(self):
+        return self.title
+
+
+class ActuatorValue(models.Model):
+    actuator = models.ForeignKey(Actuator, on_delete=models.CASCADE)
+    value = models.CharField(max_length=100, blank=True, default='')
+    updated = models.DateTimeField()
+
+    class Meta:
+        ordering = ('-updated',)
+        verbose_name_plural = 'actuatorvalues'
+
+
 class JobData(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    device = models.CharField(max_length=255, blank=False)
-    type = models.CharField(max_length=255, blank=False)
+    actuator = models.ForeignKey(Actuator, on_delete=models.CASCADE)
     value = models.CharField(max_length=255, blank=True, default='')
     done = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)

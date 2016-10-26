@@ -26,7 +26,7 @@ def ws_message(message):
     if not message.channel_session['user'] and data['type'] == 'login':
         try:
             user = ApiUser.objects.get(token=data['token'])
-            message.channel_session['user'] = user.user.id
+            message.channel_session['user'] = user.id
             print("%s connected" % user.user.username)
             message.reply_channel.send({
                 'text': json.dumps({
@@ -37,10 +37,10 @@ def ws_message(message):
             return
         except ApiUser.DoesNotExist:
             pass
-    elif message.channel_session['user']:
+    elif message.channel_session['user'] and data['type'] != 'login':
         userModel = get_user_model()
         try:
-            user = userModel.objects.get(pk=message.channel_session['user'])
+            user = ApiUser.objects.get(pk=message.channel_session['user'])
             handler = data_handler.get(data['type'], lambda: "nothing")
             try:
                 handler(user, data['data'])
@@ -64,7 +64,7 @@ def ws_message(message):
 def ws_disconnect(message):
     userModel = get_user_model()
     try:
-        user = userModel.objects.get(pk=message.channel_session['user'])
+        user = ApiUser.objects.get(pk=message.channel_session['user'])
     except (AttributeError, userModel.DoesNotExist):
         user = 'Anonymuous user'
     print("%s disconnected" % user)

@@ -9,11 +9,10 @@ urlpatterns = [
     url(r'^login/$', views.login, name='login'),
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
-    url(r'^enabledaily/$', views.enabledaily),
-    url(r'^skipdaily/$', views.skipdaily),
-    url(r'^settime/$', views.settime),
+
     url(r'^seton/$', views.seton),
     url(r'^setoff/$', views.setoff),
+
     url(r'^api/v1/csrf/$', apis.csrf),
     url(r'^api/v1/login/$', apis.login),
     url(r'^api/v1/time/$', views.get_time),

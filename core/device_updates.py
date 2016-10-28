@@ -23,6 +23,7 @@ def full_update(user, controllers):
                 device_model.brand = device.get('brandName', '')
                 device_model.product = device.get('productName', '')
                 device_model.image = device.get('deviceImage', '')
+                device_model.protocol = device.get('protocol', '')
             except Device.DoesNotExist:
                 device_model = Device.objects.create(controller=controller_model, deviceId=device['deviceId'],
                                                      name=device.get('name', ''),
@@ -33,6 +34,7 @@ def full_update(user, controllers):
                                                      brand=device.get('brandName', ''),
                                                      product=device.get('productName', ''),
                                                      image=device.get('deviceImage', ''),
+                                                     protocol=device.get('protocol', ''),
                                                      batteryType=device.get('batteryType', ''),
                                                      batteryCount=device.get('batteryCount', 0))
 

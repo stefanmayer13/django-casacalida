@@ -40,6 +40,7 @@ class Device(models.Model):
     brand = models.CharField(max_length=255, blank=True, default='')
     product = models.CharField(max_length=255, blank=True, default='')
     image = models.TextField(blank=True, default='')
+    protocol = models.CharField(max_length=255, blank=True, default='')
     batteryType = models.CharField(max_length=255, blank=True, default='')
     batteryCount = models.PositiveIntegerField(blank=True, default=0)
 
@@ -135,12 +136,3 @@ class ActuatorValue(models.Model):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = 'actuatorvalues'
-
-
-class JobData(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    actuator = models.ForeignKey(Actuator, on_delete=models.CASCADE)
-    value = models.CharField(max_length=255, blank=True, default='')
-    done = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)

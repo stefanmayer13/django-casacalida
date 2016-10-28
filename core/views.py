@@ -4,9 +4,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, JobData
-from core.serializers import serializeDevice, serializeJob
 from django.views.decorators.csrf import csrf_exempt
+from channels import Channel
+from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, Actuator, ActuatorValue
+from core.serializers import serializeDevice
 import json
 import datetime
 import pytz
@@ -60,11 +61,13 @@ def logout(request):
 
 @login_required
 def dashboard(request):
-    jobs = JobData.objects.filter(owner=request.user, done=False)
-    controllers = Controller.objects.filter(owner=request.user)
+    api_user = ApiUser.objects.get(user=request.user)
+    controllers = Controller.objects.filter(apiUser=api_user)
     devices = Device.objects.filter(controller__in=controllers)
     sensors = Sensor.objects.filter(device__in=devices)
+    actuators = Actuator.objects.filter(device__in=devices)
     sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
+    actuatorvalues = ActuatorValue.objects.filter(actuator__in=actuators).order_by('-updated')
     viewdata = {'controllers': []}
     for controller in controllers:
         devicesDict = []
@@ -73,14 +76,33 @@ def dashboard(request):
             sensorsDict = []
             deviceSensors = sensors.filter(device=device)
             for sensor in deviceSensors:
-                sensorValue = sensorvalues.filter(sensor=sensor)[0]
+                filtered_sensor_values = sensorvalues.filter(sensor=sensor)
+                if len(filtered_sensor_values) > 0:
+                    sensorValue = filtered_sensor_values[0].value
+                else:
+                    sensorValue = ''
                 sensorsDict.append({
-                    'name': sensor.title,
-                    'value': sensorValue.value + ' ' + sensor.scale,
+                    'name': sensor.title or sensor.name,
+                    'value': sensorValue + ' ' + sensor.scale,
+                })
+            actuatorsDict = []
+            deviceActuators = actuators.filter(device=device)
+            for actuator in deviceActuators:
+                filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
+                if len(filtered_actuator_values) > 0:
+                    actuatorValue = filtered_actuator_values[0].value
+                else:
+                    actuatorValue = ''
+                actuatorsDict.append({
+                    'name': actuator.title or actuator.name,
+                    'value': actuatorValue + ' ' + actuator.scale,
                 })
             devicesDict.append({
                 'name': device.name,
+                'brand': device.brand,
+                'vendor': device.vendor,
                 'sensors': sensorsDict,
+                'actuators': actuatorsDict,
             })
         viewdata['controllers'].append({
             'name': controller.name,
@@ -90,7 +112,6 @@ def dashboard(request):
         'viewdata': viewdata,
         'devices': devices,
         'sensors': sensors,
-        'jobs': jobs
     })
 
 # ################################################-API-##############################################################
@@ -137,7 +158,6 @@ def api_full_update(request):
             user = ApiUser.objects.get(token=token)
             controllers = json.loads(request.body.decode('utf-8'))
             for controller in controllers:
-                print(controller['name'])
                 try:
                     controller_model = Controller.objects.get(owner=user.user, name=controller['name'])
                 except Controller.DoesNotExist:
@@ -155,6 +175,7 @@ def api_full_update(request):
                         device_model.brand = device.get('brandName', '')
                         device_model.product = device.get('productName', '')
                         device_model.image = device.get('deviceImage', '')
+                        device_model.protocol = device.get('protocol', '')
                     except Device.DoesNotExist:
                         device_model = Device.objects.create(controller=controller_model, deviceId=device['deviceId'],
                                                              name=device.get('name', ''),
@@ -165,6 +186,7 @@ def api_full_update(request):
                                                              brand=device.get('brandName', ''),
                                                              product=device.get('productName', ''),
                                                              image=device.get('deviceImage', ''),
+                                                             protocol=device.get('protocol', ''),
                                                              batteryType=device.get('batteryType', ''),
                                                              batteryCount=device.get('batteryCount', 0))
                     print(battery)
@@ -240,47 +262,31 @@ def api_incremental_update(request):
                         sendJobs = True
                 except Controller.DoesNotExist:
                     print('Problem with incremental update')
+                    return HttpResponse(status=500, content='Problem with incremental update')
 
-            if sendJobs:
-                jobs = JobData.objects.filter(owner=user.user, done=False)
-                jobsJson = []
-                for job in jobs:
-                    job.done = True
-                    job.save()
-                    jobsJson.append(serializeJob(job))
-                return JsonResponse(dict(jobs=jobsJson))
-            else:
                 return HttpResponse(status=200)
         except ApiUser.DoesNotExist:
             pass
     return HttpResponse(status=401, content='Authentication failed')
 
-@login_required
-def enabledaily(request):
-    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='skipdaily',
-                           value='0')
-    return HttpResponseRedirect(reverse('core:dashboard'))
-
-@login_required
-def skipdaily(request):
-    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='skipdaily',
-                           value='1')
-    return HttpResponseRedirect(reverse('core:dashboard'))
-
-@login_required
-def settime(request):
-    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='time',
-                           value='02%3A00')
-    return HttpResponseRedirect(reverse('core:dashboard'))
 
 @login_required
 def seton(request):
-    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='WATER',
-                           value='1')
+    Channel('actuator_action').send({
+        'userId': request.user.id,
+        'actuatorId': 'zway_3-0-38',
+        'protocol': 'zwave',
+        'value': 'on'
+    })
     return HttpResponseRedirect(reverse('core:dashboard'))
+
 
 @login_required
 def setoff(request):
-    JobData.objects.create(owner=request.user, device='iot-sprinkler', type='WATER',
-                           value='0')
+    Channel('actuator_action').send({
+        'userId': request.user.id,
+        'actuatorId': 'zway_3-0-38',
+        'protocol': 'zwave',
+        'value': 'off'
+    })
     return HttpResponseRedirect(reverse('core:dashboard'))

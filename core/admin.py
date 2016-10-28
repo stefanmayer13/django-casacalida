@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, JobData, Actuator, ActuatorValue
+from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, Actuator, ActuatorValue
 
 def sensor_name(obj):
     return obj.sensor.__str__()
@@ -11,7 +11,16 @@ value_with_scale.short_description = 'Value'
 class SensorInline(admin.TabularInline):
     model = Sensor
 
+def device_name(obj):
+    return obj.name or obj.deviceType
+device_name.short_description = 'Name'
+
+def device_user(obj):
+    return obj.controller.apiUser.user.__str__()
+device_user.short_description = 'User'
+
 class DeviceAdmin(admin.ModelAdmin):
+    list_display = (device_name, device_user)
     inlines = [
         SensorInline,
     ]
@@ -60,6 +69,5 @@ admin.site.register(DeviceBattery)
 admin.site.register(DeviceDescription)
 admin.site.register(Sensor)
 admin.site.register(SensorValue, SensorValueAdmin)
-admin.site.register(JobData)
 admin.site.register(Actuator)
 admin.site.register(ActuatorValue, ActuatorValueAdmin)

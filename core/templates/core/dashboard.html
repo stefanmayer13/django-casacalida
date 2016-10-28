@@ -5,31 +5,35 @@
 {% block content %}
     <h1>Dashboard</h1>
     <section>
-        <a href="/enabledaily">Enable Daily Schedule</a><br/><br/>
-        <a href="/skipdaily">Skip Daily Schedule</a><br/><br/>
-        <a href="/settime">Set 02:00AM Sprinkler Time</a><br/><br/><br/>
-        <a href="/seton">Set Sprinkler On</a><br/><br/>
-        <a href="/setoff">Set Sprinkler Off</a>
-        {% if jobs %}
-            <ul>
-                {% for job in jobs %}
-                    <li>{{ job.device }}: {{ job.type }}={{ job.value }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        <a href="/seton">Set Heating On</a><br/><br/>
+        <a href="/setoff">Set Heating Off</a><br/><br/>
         {% if viewdata %}
             <ul>
             {% for controller in viewdata.controllers %}
-                <li>{{ controller.name }}
+
+                <li><h2>{{ controller.name }}</h2>
                     <ul>
                     {% for device in controller.devices %}
-                        <li>{{ device.name }}
-                            <ul>
-                            {% for sensor in device.sensors %}
-                                <li>{{ sensor.name }}<br />{{ sensor.value }}</li>
-                            {% endfor %}
-                            </ul>
-                        </li>
+                        {% if device.vendor and device.brand %}
+                            <li><h3>{{ device.name }}</h3>
+                                {% if device.sensors|length > 0 %}
+                                    <h4>Sensors:</h4>
+                                    <ul>
+                                    {% for sensor in device.sensors %}
+                                        <li>{{ sensor.name }}<br />{{ sensor.value }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% if device.actuators|length > 0 %}
+                                    <h4>Actuators:</h4>
+                                    <ul>
+                                    {% for actuator in device.actuators %}
+                                        <li>{{ actuator.name }}<br />{{ actuator.value }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endif %}
                     {% endfor %}
                     </ul>
                 </li>

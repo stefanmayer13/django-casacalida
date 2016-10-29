@@ -1,0 +1,25 @@
+version: '2'
+services:
+  web:
+    volumes:
+      - .:/app
+    environment:
+      - CASACALIDA_DB_USER=postgres
+      - CASACALIDA_DB_PASSWORD=123
+      - DJANGO_DEBUG=true
+      - DJANGO_SECURE=false
+      - DJANGO_SECRET_KEY=test
+    build: .
+    working_dir: /app
+    depends_on:
+      - db
+      - redis
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+  db:
+    environment:
+      - POSTGRES_PASSWORD=123
+    image: postgres
+  redis:
+    image: redis

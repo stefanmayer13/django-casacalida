@@ -20,18 +20,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ybsl&xeyw8iqdst^w0_ii&25zp=-s^=!gshh=a06slsye)5e+a'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True # Change on dev
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SECURE_BROWSER_XSS_FILTER = True
 
-SESSION_COOKIE_SECURE = False  # Change on dev
+SESSION_COOKIE_SECURE = os.environ.get('DJANGO_SECURE', 'true').lower() == 'true'
 
-CSRF_COOKIE_SECURE = False  # Change on dev
+CSRF_COOKIE_SECURE = os.environ.get('DJANGO_SECURE', 'true').lower() == 'true'
 
 CSRF_COOKIE_HTTPONLY = True
 

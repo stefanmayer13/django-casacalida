@@ -61,53 +61,58 @@ def logout(request):
 
 @login_required
 def dashboard(request):
-    api_user = ApiUser.objects.get(user=request.user)
-    controllers = Controller.objects.filter(apiUser=api_user)
-    devices = Device.objects.filter(controller__in=controllers)
-    sensors = Sensor.objects.filter(device__in=devices)
-    actuators = Actuator.objects.filter(device__in=devices)
-    sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
-    actuatorvalues = ActuatorValue.objects.filter(actuator__in=actuators).order_by('-updated')
-    viewdata = {'controllers': []}
-    for controller in controllers:
-        devicesDict = []
-        controllerDevices = devices.filter(controller=controller)
-        for device in controllerDevices:
-            sensorsDict = []
-            deviceSensors = sensors.filter(device=device)
-            for sensor in deviceSensors:
-                filtered_sensor_values = sensorvalues.filter(sensor=sensor)
-                if len(filtered_sensor_values) > 0:
-                    sensorValue = filtered_sensor_values[0].value
-                else:
-                    sensorValue = ''
-                sensorsDict.append({
-                    'name': sensor.title or sensor.name,
-                    'value': sensorValue + ' ' + sensor.scale,
+    try:
+        api_user = ApiUser.objects.get(user=request.user)
+        controllers = Controller.objects.filter(apiUser=api_user)
+        devices = Device.objects.filter(controller__in=controllers)
+        sensors = Sensor.objects.filter(device__in=devices)
+        actuators = Actuator.objects.filter(device__in=devices)
+        sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
+        actuatorvalues = ActuatorValue.objects.filter(actuator__in=actuators).order_by('-updated')
+        viewdata = {'controllers': []}
+        for controller in controllers:
+            devicesDict = []
+            controllerDevices = devices.filter(controller=controller)
+            for device in controllerDevices:
+                sensorsDict = []
+                deviceSensors = sensors.filter(device=device)
+                for sensor in deviceSensors:
+                    filtered_sensor_values = sensorvalues.filter(sensor=sensor)
+                    if len(filtered_sensor_values) > 0:
+                        sensorValue = filtered_sensor_values[0].value
+                    else:
+                        sensorValue = ''
+                    sensorsDict.append({
+                        'name': sensor.title or sensor.name,
+                        'value': sensorValue + ' ' + sensor.scale,
+                    })
+                actuatorsDict = []
+                deviceActuators = actuators.filter(device=device)
+                for actuator in deviceActuators:
+                    filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
+                    if len(filtered_actuator_values) > 0:
+                        actuatorValue = filtered_actuator_values[0].value
+                    else:
+                        actuatorValue = ''
+                    actuatorsDict.append({
+                        'name': actuator.title or actuator.name,
+                        'value': actuatorValue + ' ' + actuator.scale,
+                    })
+                devicesDict.append({
+                    'name': device.name,
+                    'brand': device.brand,
+                    'vendor': device.vendor,
+                    'sensors': sensorsDict,
+                    'actuators': actuatorsDict,
                 })
-            actuatorsDict = []
-            deviceActuators = actuators.filter(device=device)
-            for actuator in deviceActuators:
-                filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
-                if len(filtered_actuator_values) > 0:
-                    actuatorValue = filtered_actuator_values[0].value
-                else:
-                    actuatorValue = ''
-                actuatorsDict.append({
-                    'name': actuator.title or actuator.name,
-                    'value': actuatorValue + ' ' + actuator.scale,
-                })
-            devicesDict.append({
-                'name': device.name,
-                'brand': device.brand,
-                'vendor': device.vendor,
-                'sensors': sensorsDict,
-                'actuators': actuatorsDict,
+            viewdata['controllers'].append({
+                'name': controller.name,
+                'devices': devicesDict
             })
-        viewdata['controllers'].append({
-            'name': controller.name,
-            'devices': devicesDict
-        })
+    except ApiUser.DoesNotExist:
+        viewdata = False
+        devices = False
+        sensors = False
     return render(request, 'core/dashboard.html', {
         'viewdata': viewdata,
         'devices': devices,

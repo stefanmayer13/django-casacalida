@@ -77,10 +77,11 @@ def ws_disconnect(message):
 
 def msg_actuator_action(message):
     user_id = message.content['userId']
+    user = ApiUser.objects.get(user=user_id)
     protocol = message.content['protocol']
     actuator_id = message.content['actuatorId']
     value = message.content['value']
-    user_group = getGroupFromUserId(user_id)
+    user_group = getGroupFromUserId(user.id)
     Group(user_group).send({
         "text": json.dumps({
             'type': 'actuator',

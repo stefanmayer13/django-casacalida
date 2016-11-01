@@ -103,9 +103,9 @@ def full_update(user, controllers):
                                                               scale=sensor.get('scale', ''),
                                                               valueType=sensor.get('valueType', ''))
 
-                        ActuatorValue.objects.create(actuator=device_actuator, value=sensor.get('value'),
-                                               updated=datetime.datetime.fromtimestamp(sensor.get('lastUpdate'),
-                                                                                       tz=pytz.UTC))
+                    ActuatorValue.objects.create(actuator=device_actuator, value=sensor.get('value'),
+                                           updated=datetime.datetime.fromtimestamp(sensor.get('lastUpdate'),
+                                                                                   tz=pytz.UTC))
 
 
 def incremental_update(user, controllers):
@@ -113,7 +113,7 @@ def incremental_update(user, controllers):
         controller_model = Controller.objects.get(apiUser=user, name=controller['name'])
         for sensor in controller['sensors']:
             device_model = Device.objects.get(controller=controller_model, deviceId=sensor['deviceId'])
-            if sensor.get('deviceType', '') == 'sensor':
+            if sensor['sensor']['deviceType'] == 'sensor':
                 device_sensor = Sensor.objects.get(device=device_model, sensorId=sensor['sensor']['key'],
                                                    commandClass=sensor['sensor']['commandClass'])
                 SensorValue.objects.create(sensor=device_sensor, value=sensor['sensor']['value'],

@@ -33,7 +33,7 @@ SESSION_COOKIE_SECURE = os.environ.get('DJANGO_SECURE', 'true').lower() == 'true
 
 CSRF_COOKIE_SECURE = os.environ.get('DJANGO_SECURE', 'true').lower() == 'true'
 
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 
 X_FRAME_OPTIONS = 'DENY'
 

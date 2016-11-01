@@ -1,13 +1,13 @@
+import json
+import sys
+import traceback
+
 from channels.sessions import enforce_ordering, channel_session
 from channels import Group
 from core.models import ApiUser
 from django.contrib.auth import get_user_model
 from core.device_updates import full_update, incremental_update
 from core.utils import getGroupFromUserId
-
-import json
-import sys
-import traceback
 
 data_handler = {
     'fullupdate': full_update,

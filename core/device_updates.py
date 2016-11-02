@@ -120,7 +120,7 @@ def incremental_update(user, controllers):
                                            updated=datetime.datetime.fromtimestamp(
                                                sensor['sensor']['lastUpdate'],
                                                tz=pytz.UTC))
-            elif sensor.get('deviceType', '') == 'actuator':
+            elif sensor['sensor']['deviceType'] == 'actuator':
                 device_actuator = Actuator.objects.get(device=device_model, actuatorId=sensor['sensor']['key'],
                                                    commandClass=sensor['sensor']['commandClass'])
                 ActuatorValue.objects.create(sensor=device_actuator, value=sensor['sensor']['value'],

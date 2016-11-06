@@ -15,10 +15,12 @@ urlpatterns = [
 
     url(r'^api/v1/csrf/$', apis.csrf),
     url(r'^api/v1/login/$', apis.login),
+    url(r'^api/v1/messages/(?P<language>[a-zA-Z\-_]+)$', apis.messages),
+    url(r'^api/v1/devices/$', apis.device_list),
+
     url(r'^api/v1/time/$', views.get_time),
     url(r'^api/v1/check/$', views.api_check),
     url(r'^api/v1/fullupdate/$', views.api_full_update),
     url(r'^api/v1/incrementalupdate/$', views.api_incremental_update),
-    url(r'^api/v1/devices/$', apis.device_list),
     url(r'^api/v1/devices/(?P<deviceid>[0-9]+)/$', views.device_detail)
 ]

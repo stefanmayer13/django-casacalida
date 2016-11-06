@@ -5,18 +5,19 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, logout as auth_logout
 from django.http import JsonResponse
-from core.models import Controller, Device
+from core.models import Controller, Device, Message, Language, ApiUser
 from django.contrib.auth import get_user_model
 from django.utils.decorators import available_attrs
 from core.serializers import serializeDevice
 from datetime import datetime, timedelta
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core import serializers
 
 import jwt
 
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
-JWT_EXP_DELTA_SECONDS = 60
+JWT_EXP_DELTA_SECONDS = 3600
 
 def jwt_authenticated(function=None):
     def decorator(view_func):
@@ -81,12 +82,13 @@ def logout(request):
 @jwt_authenticated
 def device_list(userid, request):
     user = get_user_model().objects.filter(id=userid)
-    controllers = Controller.objects.filter(owner=user)
-    devices = Device.objects.filter(controller__in=controllers)
-    return JsonResponse(dict(devices=list(devices)))
+    apiUser = ApiUser.objects.get(user=user)
+    controllers = Controller.objects.filter(apiUser=apiUser)
+    devices = Device.objects.filter(controller__in=controllers).values('id', 'name', 'deviceType', 'vendor')
+    return JsonResponse({"devices": list(devices)})
 
-
-def device_detail(request, deviceid):
+@jwt_authenticated
+def device_detail(userid, request, deviceid):
     if request.method == 'GET':
         device = get_object_or_404(Device, id=deviceid)
         return JsonResponse(serializeDevice(device))
@@ -94,3 +96,19 @@ def device_detail(request, deviceid):
         print(request.POST)
 
         return 'TODO'
+
+def messages(request, language):
+    if request.method == 'GET':
+        try:
+            language_id = Language.objects.get(abbreviation=language)
+        except Language.DoesNotExist:
+            return HttpResponse(status=404)
+        languages = list(Language.objects.all().values('abbreviation', 'language'))
+        message_list = list(Message.objects.filter(language=language_id).values('key', 'text'))
+        message_dict = {}
+        for message in message_list:
+            key = message.pop('key')
+            message_dict[key] = message['text']
+        return JsonResponse({"languages": languages, "language": language, "messages": message_dict})
+    else:
+        return HttpResponse(status=404)

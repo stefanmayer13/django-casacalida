@@ -136,3 +136,25 @@ class ActuatorValue(models.Model):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = 'actuatorvalues'
+
+class Language(models.Model):
+    abbreviation = models.CharField(max_length=5)
+    language = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ('abbreviation',)
+        verbose_name_plural = 'languages'
+
+    def __str__(self):
+        return self.language
+
+class Message(models.Model):
+    key = models.CharField(max_length=100)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    text = models.TextField()
+
+    class Meta:
+        verbose_name_plural = 'messages'
+
+    def __str__(self):
+        return self.key

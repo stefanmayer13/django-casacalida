@@ -39,6 +39,13 @@ class ControllerAdmin(admin.ModelAdmin):
         DeviceInline,
     ]
 
+def battery_value(obj):
+    return obj.__str__()
+
+class BatteryAdmin(admin.ModelAdmin):
+    list_display = (battery_value, 'updated')
+    ordering = ('-updated',)
+
 class SensorValueAdmin(admin.ModelAdmin):
     list_display = (sensor_name, value_with_scale, 'updated')
     ordering = ('-updated',)
@@ -66,7 +73,7 @@ class ActuatorValueAdmin(admin.ModelAdmin):
 admin.site.register(Controller, ControllerAdmin)
 admin.site.register(Device, DeviceAdmin)
 admin.site.register(ApiUser, ApiUserAdmin)
-admin.site.register(DeviceBattery)
+admin.site.register(DeviceBattery, BatteryAdmin)
 admin.site.register(DeviceDescription)
 admin.site.register(Sensor)
 admin.site.register(SensorValue, SensorValueAdmin)

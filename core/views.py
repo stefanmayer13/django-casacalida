@@ -151,11 +151,6 @@ def api_check(request):
     return HttpResponse(status=401, content='Authentication failed')
 
 @csrf_exempt
-def get_time(request):
-    response_data = {'time': int(time.time())}
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
-
-@csrf_exempt
 def api_full_update(request):
     token = request.META.get('HTTP_TOKEN', None)
     if request.method == 'POST' and token is not None:

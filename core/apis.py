@@ -5,13 +5,13 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, logout as auth_logout
 from django.http import JsonResponse
-from core.models import Controller, Device, Message, Language, ApiUser
+from core.models import Controller, Device, Message, Language, ApiUser, Sensor, SensorValue, Actuator, ActuatorValue
 from django.contrib.auth import get_user_model
 from django.utils.decorators import available_attrs
 from core.serializers import serializeDevice
 from datetime import datetime, timedelta
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core import serializers
+from django.forms.models import model_to_dict
 
 import jwt
 
@@ -84,8 +84,37 @@ def device_list(userid, request):
     user = get_user_model().objects.filter(id=userid)
     apiUser = ApiUser.objects.get(user=user)
     controllers = Controller.objects.filter(apiUser=apiUser)
-    devices = Device.objects.filter(controller__in=controllers).values('id', 'name', 'deviceType', 'vendor')
-    return JsonResponse({"devices": list(devices)})
+    devices = Device.objects.filter(controller__in=controllers)
+
+    device_list = list()
+    for i, device in enumerate(devices):
+        sensors = device.sensor_set.all()
+        battery = device.devicebattery_set.all().order_by('-updated')[:1]
+        if (len(battery) > 0):
+            batterylevel = model_to_dict(battery[0], fields=['value', 'updated'])
+        else:
+            batterylevel = {}
+        sensor_list = list()
+        for j, sensor in enumerate(sensors):
+            sensorvalue = model_to_dict(sensor.sensorvalue_set.all().order_by('-updated')[0], fields=['value', 'updated'])
+            sensor_object = model_to_dict(sensor, fields=['id', 'name', 'title', 'icon', 'scale', 'valueType'])
+            sensor_object['lastValue'] = sensorvalue
+            sensor_list.append(sensor_object)
+        actuators = device.actuator_set.all()
+        actuator_list = list()
+        for j, actuator in enumerate(actuators):
+            actuatorvalue = model_to_dict(actuator.actuatorvalue_set.all().order_by('-updated')[0],
+                                        fields=['value', 'updated'])
+            actuator_object = model_to_dict(actuator, fields=['id', 'name', 'title', 'icon', 'scale', 'valueType'])
+            actuator_object['lastValue'] = actuatorvalue
+            actuator_list.append(actuator_object)
+        device_object = model_to_dict(device, fields=['id', 'name', 'deviceType', 'vendor', 'brand', 'product', 'batteryType', 'batteryCount'])
+        device_object['sensors'] = sensor_list
+        device_object['actuators'] = actuator_list
+        device_object['batteryLevel'] = batterylevel
+        device_list.append(device_object)
+
+    return JsonResponse({"devices": device_list})
 
 @jwt_authenticated
 def device_detail(userid, request, deviceid):

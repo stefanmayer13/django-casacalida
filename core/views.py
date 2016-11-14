@@ -121,25 +121,6 @@ def dashboard(request):
 
 # ################################################-API-##############################################################
 
-
-def device_list(request):
-    if request.user.is_authenticated():
-        return JsonResponse(dict(devices=list(Device.objects.values('id', 'name'))))
-    else:
-        return HttpResponse(status=401)
-
-
-@login_required
-def device_detail(request, deviceid):
-    if request.method == 'GET':
-        device = get_object_or_404(Device, id=deviceid)
-        return JsonResponse(serializeDevice(device))
-    elif request.method == 'POST':
-        print(request.POST)
-
-        return 'TODO'
-
-
 def api_check(request):
     token = request.META.get('HTTP_TOKEN', None)
     if request.method == 'GET' and token is not None:

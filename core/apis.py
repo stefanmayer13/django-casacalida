@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from core.models import Controller, Device, Message, Language, ApiUser, Sensor, SensorValue, Actuator, ActuatorValue
 from django.contrib.auth import get_user_model
 from django.utils.decorators import available_attrs
-from core.serializers import serializeDevice
+from core.serializers import serializeSensor, serializeSensorValue
 from datetime import datetime, timedelta
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.forms.models import model_to_dict
@@ -116,15 +116,25 @@ def device_list(userid, request):
 
     return JsonResponse({"devices": device_list})
 
-@jwt_authenticated
-def device_detail(userid, request, deviceid):
-    if request.method == 'GET':
-        device = get_object_or_404(Device, id=deviceid)
-        return JsonResponse(serializeDevice(device))
-    elif request.method == 'POST':
-        print(request.POST)
 
-        return 'TODO'
+@jwt_authenticated
+def sensor_detail(userid, request, sensorid):
+    if request.method == 'GET':
+        sensor = get_object_or_404(Sensor, id=sensorid)
+        day_to = datetime.today()
+        day_from = day_to - timedelta(days=1)
+        sensorvalues = sensor.sensorvalue_set.filter(updated__range=[day_from.strftime("%Y-%m-%d %H:%M:%S"), day_to.strftime("%Y-%m-%d %H:%M:%S")]).order_by('-updated')
+        if userid == sensor.device.controller.apiUser.user.id:
+            sensorDict = serializeSensor(sensor)
+            sensorDict['values'] = list()
+            for i, sensorvalue in enumerate(sensorvalues):
+                sensorDict['values'].append(serializeSensorValue(sensorvalue))
+            return JsonResponse(sensorDict)
+        else:
+            return HttpResponse(status=401)
+    else:
+        return HttpResponse(status=404)
+
 
 def messages(request, language):
     if request.method == 'GET':

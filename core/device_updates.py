@@ -78,8 +78,10 @@ def full_update(user, controllers):
                                                               scale=sensor.get('scale', ''),
                                                               valueType=sensor.get('valueType', ''))
 
-                    SensorValue.objects.create(sensor=device_sensor, value=sensor.get('value'),
-                                               updated=datetime.datetime.fromtimestamp(sensor.get('lastUpdate'), tz=pytz.UTC))
+                    if sensor.get('value'):
+                        SensorValue.objects.create(sensor=device_sensor, value=sensor.get('value'),
+                            updated=datetime.datetime.fromtimestamp(sensor.get('lastUpdate'), tz=pytz.UTC))
+
                 elif sensor.get('deviceType', '') == 'actuator':
                     try:
                         device_actuator = Actuator.objects.get(device=device_model, actuatorId=sensor.get('key'),

@@ -50,6 +50,8 @@ def ws_message(message):
                 handler(user, data['data'])
             except:
                 print(traceback.format_exc())
+                print("User: " + str(user.id))
+                print(data['data'])
                 message.reply_channel.send({
                     "text": json.dumps({
                         'error': data['type'],

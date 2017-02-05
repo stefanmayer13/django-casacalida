@@ -2,7 +2,7 @@ import json
 import sys
 import traceback
 
-from channels.sessions import enforce_ordering, channel_session
+from channels.sessions import channel_session
 from channels import Group
 from core.models import ApiUser
 from django.contrib.auth import get_user_model
@@ -15,13 +15,12 @@ data_handler = {
 }
 
 # Connected to websocket.connect
-@enforce_ordering(slight=True)
 @channel_session
 def ws_connect(message):
     message.channel_session['user'] = False
+    message.reply_channel.send({"accept": True})
 
 # Connected to websocket.receive
-@enforce_ordering(slight=True)
 @channel_session
 def ws_message(message):
     data = json.loads(message.content['text'])
@@ -65,7 +64,6 @@ def ws_message(message):
     })
 
 # Connected to websocket.disconnect
-@enforce_ordering(slight=True)
 @channel_session
 def ws_disconnect(message):
     userModel = get_user_model()

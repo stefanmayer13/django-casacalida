@@ -129,3 +129,5 @@ def incremental_update(user, controllers):
                                            updated=datetime.datetime.fromtimestamp(
                                                sensor['sensor']['lastUpdate'],
                                                tz=pytz.UTC))
+            if sensor.get('battery', None) is not None:
+                DeviceBattery.objects.create(device=device_model, value=sensor['battery'])

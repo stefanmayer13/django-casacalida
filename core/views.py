@@ -8,10 +8,48 @@ from django.views.decorators.csrf import csrf_exempt
 from channels import Channel
 from core.models import Controller, Device, ApiUser, DeviceBattery, DeviceDescription, Sensor, SensorValue, Actuator, ActuatorValue
 from core.serializers import serializeDevice
+from datetime import datetime
 import json
-import datetime
 import pytz
 import time
+
+def pretty_date(time=False):
+    from django.utils import timezone
+    now = timezone.now()
+    if type(time) is int:
+        diff = now - datetime.fromtimestamp(time)
+    elif isinstance(time,datetime):
+        diff = now - time
+    elif not time:
+        diff = now - now
+    second_diff = diff.seconds
+    day_diff = diff.days
+
+    if day_diff < 0:
+        return ''
+
+    if day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return "a minute ago"
+        if second_diff < 3600:
+            return str(round(second_diff / 60)) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str(round(second_diff / 3600)) + " hours ago"
+    if day_diff == 1:
+        return "Yesterday"
+    if day_diff < 7:
+        return str(round(day_diff)) + " days ago"
+    if day_diff < 31:
+        return str(round(day_diff / 7)) + " weeks ago"
+    if day_diff < 365:
+        return str(round(day_diff / 30)) + " months ago"
+    return str(round(day_diff / 365)) + " years ago"
 
 def index(request):
     user = None
@@ -80,11 +118,14 @@ def dashboard(request):
                     filtered_sensor_values = sensorvalues.filter(sensor=sensor)
                     if len(filtered_sensor_values) > 0:
                         sensorValue = filtered_sensor_values[0].value
+                        sensorDate = pretty_date(filtered_sensor_values[0].updated)
                     else:
                         sensorValue = ''
+                        sensorDate = ''
                     sensorsDict.append({
                         'name': sensor.title or sensor.name,
                         'value': sensorValue + ' ' + sensor.scale,
+                        'date': sensorDate
                     })
                 actuatorsDict = []
                 deviceActuators = actuators.filter(device=device)
@@ -92,11 +133,14 @@ def dashboard(request):
                     filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
                     if len(filtered_actuator_values) > 0:
                         actuatorValue = filtered_actuator_values[0].value
+                        actuatorDate = pretty_date(filtered_actuator_values[0].updated)
                     else:
                         actuatorValue = ''
+                        actuatorDate = ''
                     actuatorsDict.append({
                         'name': actuator.title or actuator.name,
                         'value': actuatorValue + ' ' + actuator.scale,
+                        'date': actuatorDate
                     })
                 devicesDict.append({
                     'name': device.name,
@@ -211,7 +255,7 @@ def api_full_update(request):
                                                                   valueType=sensor.get('valueType', ''))
 
                         SensorValue.objects.create(sensor=device_sensor, value=sensor.get('value'),
-                                                   updated=datetime.datetime.fromtimestamp(sensor.get('lastUpdate'), tz=pytz.UTC))
+                                                   updated=datetime.fromtimestamp(sensor.get('lastUpdate'), tz=pytz.UTC))
 
             return HttpResponse(status=200)
         except ApiUser.DoesNotExist:
@@ -235,7 +279,7 @@ def api_incremental_update(request):
                         device_sensor = Sensor.objects.get(device=device_model, sensorId=sensor['sensor']['key'],
                                                            commandClass=sensor['sensor']['commandClass'])
                         SensorValue.objects.create(sensor=device_sensor, value=sensor['sensor']['value'],
-                                                   updated=datetime.datetime.fromtimestamp(
+                                                   updated=datetime.fromtimestamp(
                                                        sensor['sensor']['lastUpdate'],
                                                        tz=pytz.UTC))
 

@@ -20,7 +20,7 @@
                                     <h4>Sensors:</h4>
                                     <ul>
                                     {% for sensor in device.sensors %}
-                                        <li>{{ sensor.name }}<br />{{ sensor.value }}</li>
+                                        <li>{{ sensor.name }}<br />{{ sensor.value }} <span style="color: grey">({{ sensor.date }})</span></li>
                                     {% endfor %}
                                     </ul>
                                 {% endif %}
@@ -28,7 +28,7 @@
                                     <h4>Actuators:</h4>
                                     <ul>
                                     {% for actuator in device.actuators %}
-                                        <li>{{ actuator.name }}<br />{{ actuator.value }}</li>
+                                        <li>{{ actuator.name }}<br />{{ actuator.value }} <span style="color: grey">({{ actuator.date }})</span></li>
                                     {% endfor %}
                                     </ul>
                                 {% endif %}

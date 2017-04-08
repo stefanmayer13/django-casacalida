@@ -6,6 +6,7 @@ from channels.sessions import channel_session
 from channels import Group
 from core.models import ApiUser
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from core.device_updates import full_update, incremental_update
 from core.utils import getGroupFromUserId
 
@@ -27,7 +28,7 @@ def ws_message(message):
     if not message.channel_session['user'] and data['type'] == 'login':
         try:
             user = ApiUser.objects.get(token=data['token'])
-            message.channel_session['user'] = user.id
+            message.channel_session['user'] = data['token']
             user_group = getGroupFromUserId(user.id)
             Group(user_group).add(message.reply_channel)
             print("%s connected" % user.user.username)
@@ -43,7 +44,7 @@ def ws_message(message):
     elif message.channel_session['user'] and data['type'] != 'login':
         userModel = get_user_model()
         try:
-            user = ApiUser.objects.get(pk=message.channel_session['user'])
+            user = ApiUser.objects.get(token=message.channel_session['user'])
             handler = data_handler.get(data['type'], lambda: "nothing")
             try:
                 handler(user, data['data'])
@@ -68,7 +69,7 @@ def ws_message(message):
 def ws_disconnect(message):
     userModel = get_user_model()
     try:
-        user = ApiUser.objects.get(pk=message.channel_session['user'])
+        user = ApiUser.objects.get(token=message.channel_session['user'])
         user_group = getGroupFromUserId(user.id)
         Group(user_group).discard(message.reply_channel)
     except (AttributeError, userModel.DoesNotExist):
@@ -77,7 +78,10 @@ def ws_disconnect(message):
 
 def msg_actuator_action(message):
     user_id = message.content['userId']
-    user = ApiUser.objects.get(user=user_id)
+
+    print("New action %s %s %s for user %s" % (message.content['protocol'], message.content['actuatorId'], message.content['value'], user_id))
+
+    user = get_user_model().objects.get(id=user_id)
     protocol = message.content['protocol']
     actuator_id = message.content['actuatorId']
     value = message.content['value']

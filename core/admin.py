@@ -54,6 +54,7 @@ class ControllerInline(admin.TabularInline):
     model = Controller
 
 class ApiUserAdmin(admin.ModelAdmin):
+    list_display = ('user', 'token')
     inlines = [
         ControllerInline,
     ]

@@ -6,8 +6,10 @@
     <h1>Dashboard</h1>
     <section>
         {% if viewdata %}
-            <a href="/seton/">Set Heating On</a><br/><br/>
-            <a href="/setoff/">Set Heating Off</a><br/><br/>
+            <a href="/setheatingon/">Set Heating On</a><br/><br/>
+            <a href="/setheatingoff/">Set Heating Off</a><br/><br/><br/>
+            <a href="/setwateron/">Set Irrigation On</a><br/><br/>
+            <a href="/setwateroff/">Set Irrigation Off</a><br/><br/>
             <ul>
             {% for controller in viewdata.controllers %}
 

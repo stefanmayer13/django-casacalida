@@ -10,8 +10,11 @@ urlpatterns = [
     url(r'^logout/$', views.logout, name='logout'),
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
 
-    url(r'^seton/$', views.seton),
-    url(r'^setoff/$', views.setoff),
+    url(r'^setheatingon/$', views.setheatingon),
+    url(r'^setheatingoff/$', views.setheatingoff),
+
+    url(r'^setwateron/$', views.setwateron),
+    url(r'^setwateroff/$', views.setwateroff),
 
     url(r'^api/v1/csrf/$', apis.csrf),
     url(r'^api/v1/login/$', apis.login),

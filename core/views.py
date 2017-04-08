@@ -100,59 +100,60 @@ def logout(request):
 @login_required
 def dashboard(request):
     try:
-        api_user = ApiUser.objects.get(user=request.user)
-        controllers = Controller.objects.filter(apiUser=api_user)
-        devices = Device.objects.filter(controller__in=controllers)
-        sensors = Sensor.objects.filter(device__in=devices)
-        actuators = Actuator.objects.filter(device__in=devices)
-        sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
-        actuatorvalues = ActuatorValue.objects.filter(actuator__in=actuators).order_by('-updated')
+        api_users = ApiUser.objects.filter(user=request.user)
         viewdata = {'controllers': []}
-        for controller in controllers:
-            devicesDict = []
-            controllerDevices = devices.filter(controller=controller)
-            for device in controllerDevices:
-                sensorsDict = []
-                deviceSensors = sensors.filter(device=device)
-                for sensor in deviceSensors:
-                    filtered_sensor_values = sensorvalues.filter(sensor=sensor)
-                    if len(filtered_sensor_values) > 0:
-                        sensorValue = filtered_sensor_values[0].value
-                        sensorDate = pretty_date(filtered_sensor_values[0].updated)
-                    else:
-                        sensorValue = ''
-                        sensorDate = ''
-                    sensorsDict.append({
-                        'name': sensor.title or sensor.name,
-                        'value': sensorValue + ' ' + sensor.scale,
-                        'date': sensorDate
+        for api_user in api_users:
+            controllers = Controller.objects.filter(apiUser=api_user)
+            devices = Device.objects.filter(controller__in=controllers)
+            sensors = Sensor.objects.filter(device__in=devices)
+            actuators = Actuator.objects.filter(device__in=devices)
+            sensorvalues = SensorValue.objects.filter(sensor__in=sensors).order_by('-updated')
+            actuatorvalues = ActuatorValue.objects.filter(actuator__in=actuators).order_by('-updated')
+            for controller in controllers:
+                devicesDict = []
+                controllerDevices = devices.filter(controller=controller)
+                for device in controllerDevices:
+                    sensorsDict = []
+                    deviceSensors = sensors.filter(device=device)
+                    for sensor in deviceSensors:
+                        filtered_sensor_values = sensorvalues.filter(sensor=sensor)
+                        if len(filtered_sensor_values) > 0:
+                            sensorValue = filtered_sensor_values[0].value
+                            sensorDate = pretty_date(filtered_sensor_values[0].updated)
+                        else:
+                            sensorValue = ''
+                            sensorDate = ''
+                        sensorsDict.append({
+                            'name': sensor.title or sensor.name,
+                            'value': sensorValue + ' ' + sensor.scale,
+                            'date': sensorDate
+                        })
+                    actuatorsDict = []
+                    deviceActuators = actuators.filter(device=device)
+                    for actuator in deviceActuators:
+                        filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
+                        if len(filtered_actuator_values) > 0:
+                            actuatorValue = filtered_actuator_values[0].value
+                            actuatorDate = pretty_date(filtered_actuator_values[0].updated)
+                        else:
+                            actuatorValue = ''
+                            actuatorDate = ''
+                        actuatorsDict.append({
+                            'name': actuator.title or actuator.name,
+                            'value': actuatorValue + ' ' + actuator.scale,
+                            'date': actuatorDate
+                        })
+                    devicesDict.append({
+                        'name': device.name,
+                        'brand': device.brand,
+                        'vendor': device.vendor,
+                        'sensors': sensorsDict,
+                        'actuators': actuatorsDict,
                     })
-                actuatorsDict = []
-                deviceActuators = actuators.filter(device=device)
-                for actuator in deviceActuators:
-                    filtered_actuator_values = actuatorvalues.filter(actuator=actuator)
-                    if len(filtered_actuator_values) > 0:
-                        actuatorValue = filtered_actuator_values[0].value
-                        actuatorDate = pretty_date(filtered_actuator_values[0].updated)
-                    else:
-                        actuatorValue = ''
-                        actuatorDate = ''
-                    actuatorsDict.append({
-                        'name': actuator.title or actuator.name,
-                        'value': actuatorValue + ' ' + actuator.scale,
-                        'date': actuatorDate
-                    })
-                devicesDict.append({
-                    'name': device.name,
-                    'brand': device.brand,
-                    'vendor': device.vendor,
-                    'sensors': sensorsDict,
-                    'actuators': actuatorsDict,
+                viewdata['controllers'].append({
+                    'name': controller.name,
+                    'devices': devicesDict
                 })
-            viewdata['controllers'].append({
-                'name': controller.name,
-                'devices': devicesDict
-            })
     except ApiUser.DoesNotExist:
         viewdata = False
         devices = False
@@ -214,7 +215,7 @@ def api_full_update(request):
                                                              protocol=device.get('protocol', ''),
                                                              batteryType=device.get('batteryType', ''),
                                                              batteryCount=device.get('batteryCount', 0))
-                    print(battery)
+
                     if battery is not None and battery.get('type', None) is not None:
                         device_model.batteryType = battery.get('type')
                         device_model.batteryCount = battery.get('count', 0)
@@ -296,7 +297,7 @@ def api_incremental_update(request):
 
 
 @login_required
-def seton(request):
+def setheatingon(request):
     Channel('actuator_action').send({
         'userId': request.user.id,
         'actuatorId': 'zway_3-0-38',
@@ -307,11 +308,49 @@ def seton(request):
 
 
 @login_required
-def setoff(request):
+def setheatingoff(request):
     Channel('actuator_action').send({
         'userId': request.user.id,
         'actuatorId': 'zway_3-0-38',
         'protocol': 'zwave',
         'value': 'off'
     })
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+def setwateron(request):
+    token = request.GET.get('token')
+    userid = None
+    if token:
+        try:
+            userid = ApiUser.objects.get(token=token).user.id
+        except ApiUser.DoesNotExist:
+            pass
+    elif request.user.id:
+        userid = request.user.id
+    if userid:
+        Channel('actuator_action').send({
+            'userId': userid,
+            'actuatorId': 'iot-1-water-status',
+            'protocol': 'iot',
+            'value': 'on'
+        })
+    return HttpResponseRedirect(reverse('core:dashboard'))
+
+def setwateroff(request):
+    token = request.GET.get('token')
+    userid = None
+    if token:
+        try:
+            userid = ApiUser.objects.get(token=token).user.id
+        except ApiUser.DoesNotExist:
+            pass
+    elif request.user.id:
+        userid = request.user.id
+    if userid:
+        Channel('actuator_action').send({
+            'userId': userid,
+            'actuatorId': 'iot-1-water-status',
+            'protocol': 'iot',
+            'value': 'off'
+        })
     return HttpResponseRedirect(reverse('core:dashboard'))

@@ -29,7 +29,7 @@ def ws_message(message):
         try:
             user = ApiUser.objects.get(token=data['token'])
             message.channel_session['user'] = data['token']
-            user_group = getGroupFromUserId(user.id)
+            user_group = getGroupFromUserId(user.user.id)
             Group(user_group).add(message.reply_channel)
             print("%s connected" % user.user.username)
             message.reply_channel.send({
@@ -70,7 +70,7 @@ def ws_disconnect(message):
     userModel = get_user_model()
     try:
         user = ApiUser.objects.get(token=message.channel_session['user'])
-        user_group = getGroupFromUserId(user.id)
+        user_group = getGroupFromUserId(user.user.id)
         Group(user_group).discard(message.reply_channel)
     except (AttributeError, userModel.DoesNotExist):
         user = 'Anonymuous user'
